@@ -64,10 +64,17 @@
         <div id="posts"></div>
     </div>
     <script>
-        const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+        const repoOwner = 'YOUR_GITHUB_USERNAME';
+        const repoName = 'YOUR_REPOSITORY_NAME';
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/issues`;
+        const token = 'YOUR_PERSONAL_ACCESS_TOKEN';
 
         async function fetchPosts() {
-            const response = await fetch(apiUrl);
+            const response = await fetch(apiUrl, {
+                headers: {
+                    'Authorization': `token ${token}`
+                }
+            });
             const posts = await response.json();
             const postsDiv = document.getElementById('posts');
             postsDiv.innerHTML = '';
@@ -88,6 +95,7 @@
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `token ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ title, body: content })
