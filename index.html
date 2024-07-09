@@ -4,80 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft Redstone Forum</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            width: 80%;
-            max-width: 800px;
-            margin-top: 20px;
-        }
-        .post {
-            border: 1px solid #ccc;
-            background: #fff;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .post h3 {
-            margin: 0 0 10px;
-        }
-        .form {
-            margin-bottom: 20px;
-            width: 100%;
-        }
-        .form input, .form textarea {
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .form button {
-            padding: 10px 20px;
-            border: none;
-            background-color: #28a745;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .form button:hover {
-            background-color: #218838;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
+    <div id="forum">
         <h1>Minecraft Redstone Forum</h1>
-        <div class="form">
-            <input type="text" id="title" placeholder="Title">
-            <textarea id="content" placeholder="Content"></textarea>
+        <div id="postForm">
+            <input type="text" id="title" placeholder="Enter title">
+            <textarea id="content" placeholder="Enter content"></textarea>
             <button onclick="createPost()">Create Post</button>
         </div>
         <div id="posts"></div>
     </div>
-    <script>
-        const repoOwner = 'YOUR_GITHUB_USERNAME';
-        const repoName = 'YOUR_REPOSITORY_NAME';
-        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/issues`;
-        const token = 'YOUR_PERSONAL_ACCESS_TOKEN';
 
-        async function fetchPosts() {
-            const response = await fetch(apiUrl, {
+    <script>
+        const apiUrl = 'https://jsonplaceholder.typicode.com/posts'; // Using mock JSONPlaceholder
+
+        function createPost() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const data = {
+                title: title,
+                body: content,
+                userId: 1 // Mocking user ID
+            };
+            fetch(apiUrl, {
+                method: 'POST',
                 headers: {
-                    'Authorization': `token ${token}`
-                }
-            });
-            const posts = await response.json();
-            const postsDiv = document.getElementById('posts');
-            postsDiv.innerHTML = '';
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Post created:', result);
+                fetchPosts(); // Refresh posts after creating
+            })
+            .catch(error => console.error('Error creating post:', error));
+        }
+
+        function fetchPosts() {
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(posts => {
+                displayPosts(posts);
+            })
+            .catch(error => console.error('Error fetching posts:', error));
+        }
+
+        function displayPosts(posts) {
+            const postsContainer = document.getElementById('posts');
+            postsContainer.innerHTML = ''; // Clear previous posts
+
             posts.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.classList.add('post');
@@ -85,26 +62,11 @@
                     <h3>${post.title}</h3>
                     <p>${post.body}</p>
                 `;
-                postsDiv.appendChild(postDiv);
+                postsContainer.appendChild(postDiv);
             });
         }
 
-        async function createPost() {
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ title, body: content })
-            });
-            if (response.ok) {
-                fetchPosts();
-            }
-        }
-
+        // Initial fetch of posts when page loads
         fetchPosts();
     </script>
 </body>
